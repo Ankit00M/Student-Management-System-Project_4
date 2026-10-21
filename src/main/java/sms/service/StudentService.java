@@ -1,7 +1,8 @@
 package sms.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import sms.entity.Student;
 import sms.repository.StudentRepository;
 
@@ -10,14 +11,13 @@ import java.util.List;
 @Service
 public class StudentService {
 
-    @Autowired
     private final StudentRepository repo;
 
     public StudentService(StudentRepository repo) {
         this.repo = repo;
     }
 
-    public Student addStudent(Student student) {;
+    public Student addStudent(Student student) {
         return repo.save(student);
     }
 
@@ -25,15 +25,19 @@ public class StudentService {
         return repo.findAll();
     }
 
-    public Student getStudentById(int id) {
-        return repo.findById(id).orElse(null);
-    }
-
-    public void deleteStudent(int id) {
+    public void deleteStudent(Long id) {
         repo.deleteById(id);
     }
 
-    public Student getStudent(int id) {
-        return null;
+    public Student getStudent(Long id) {
+        return repo.findById(id).orElseThrow(() ->
+                new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Student not found"
+                )
+        );
+    }
+
+    public Student getStudentById(Long id) {
+        return getStudent(id);
     }
 }
